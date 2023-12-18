@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.RetroFit" parent="Base.CardView">
+        <item name="searchViewStyle">@style/MySearchViewStyle</item>
+    </style>
+    <style name="MySearchViewStyle" parent="Widget.AppCompat.Light.SearchView"/>
+
+</resources>
