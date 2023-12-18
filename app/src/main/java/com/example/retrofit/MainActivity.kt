@@ -1,31 +1,23 @@
 package com.example.retrofit
 
 import android.os.Bundle
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.retrofit.databinding.ItemDigiBinding
 import com.example.retrofit.databinding.MainLayoutBinding
-import com.example.retrofit.ui.theme.RetroFitTheme
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Locale
@@ -43,16 +35,16 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     }
     private fun getRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://raw.githubusercontent.com/CristianSamper/digimons/main/")//digimonFinal.json
+            .baseUrl("https://digimon-api.vercel.app/api/digimon/name/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
     private fun searchByName(query:String){
         CoroutineScope(Dispatchers.IO).launch {
-            val call = getRetrofit().create(APIService::class.java).getDigi("$query/digimonFinal.json")
+            val call = getRetrofit().create(APIService::class.java).getDigi("$query")
             val digimon = call.body()
             if(call.isSuccessful){
-                val digimonImg = digimon?.Imagen ?: emptyList()
+                val digimonImg = digimon?.img ?: emptyList()
                 digiImages.clear()
                 digiImages.addAll(digimonImg)
                 adapter.notifyDataSetChanged()
@@ -68,6 +60,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         binding.rvDigi.adapter = adapter
     }
     private fun showError() {
+        Looper.prepare()
         Toast.makeText(this, "Ha ocurrido un error", Toast.LENGTH_SHORT).show()
     }
 

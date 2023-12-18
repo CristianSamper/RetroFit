@@ -6,5 +6,6 @@ import retrofit2.http.Url
 
 interface APIService {
     @GET
+    //suspend fun getDigi(@Url url:String): Response<raceResponse>
     suspend fun getDigi(@Url url:String): Response<raceResponse>
 }
