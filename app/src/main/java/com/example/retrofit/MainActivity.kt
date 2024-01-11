@@ -1,5 +1,4 @@
 package com.example.retrofit
-
 import android.os.Bundle
 import android.os.Looper
 import android.view.LayoutInflater
@@ -17,7 +16,6 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Locale
@@ -35,18 +33,18 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     }
     private fun getRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://digimon-api.vercel.app/api/digimon/name/")
+            .baseUrl("https://digimon-api.vercel.app/api/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
     private fun searchByName(query:String){
         CoroutineScope(Dispatchers.IO).launch {
-            val call = getRetrofit().create(APIService::class.java).getDigi("$query")
+            val call = getRetrofit().create(APIService::class.java).getDigibyImg("digimon/name/$query")
             val digimon = call.body()
             if(call.isSuccessful){
-                val digimonImg = digimon?.img ?: emptyList()
+                val digimonImg = digimon?.component1() ?: String
                 digiImages.clear()
-                digiImages.addAll(digimonImg)
+                digiImages.add(digimonImg.toString())
                 adapter.notifyDataSetChanged()
             }else{
                 showError()
