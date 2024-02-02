@@ -1,25 +1,18 @@
 package com.example.retrofit
 import android.os.Bundle
 import android.os.Looper
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.retrofit.databinding.ItemDigiBinding
 import com.example.retrofit.databinding.MainLayoutBinding
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Locale
-
 class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     private lateinit var adapter: DigiAdapter
     private val digiImages = mutableListOf<String>()
@@ -41,14 +34,18 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         CoroutineScope(Dispatchers.IO).launch {
             val call = getRetrofit().create(APIService::class.java).getDigibyImg("digimon/name/$query")
             val digimon = call.body()
-            if(call.isSuccessful){
-                val digimonImg = digimon?.component1() ?: String
+            runOnUiThread{
+                if(call.isSuccessful){
+                var digimonImg = digimon?: String
+                digimonImg=digimonImg.toString().substring(13).trim(']')
+                digimonImg=digimonImg.toString().trim(')')
                 digiImages.clear()
                 digiImages.add(digimonImg.toString())
-                adapter.notifyDataSetChanged()
+                 adapter.notifyDataSetChanged()
+
             }else{
                 showError()
-            }
+            }}
             hideKeyboard()
         }
     }
@@ -76,26 +73,4 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         imm.hideSoftInputFromWindow(binding.viewRoot.windowToken, 0)
     }
 }
-class DigiViewHolder(view: View): RecyclerView.ViewHolder(view) {
 
-    private val binding = ItemDigiBinding.bind(view)
-
-    fun bind(image:String){
-        Picasso.get().load(image).into(binding.ivDigi)
-    }
-}
-class DigiAdapter(private val images: List<String>) : RecyclerView.Adapter<DigiViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DigiViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        return DigiViewHolder(layoutInflater.inflate(R.layout.item_digi, parent, false))
-    }
-
-    override fun getItemCount(): Int = images.size
-
-
-    override fun onBindViewHolder(holder: DigiViewHolder, position: Int) {
-        val item = images[position]
-        holder.bind(item)
-    }
-}
